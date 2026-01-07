@@ -7,7 +7,7 @@ kind: Pod
 metadata:
   labels:
     jenkins: agent
-    app: pyexample2-ci
+    app: pyexample3-ci
 spec:
   containers:
   - name: python
@@ -33,7 +33,6 @@ spec:
         POETRY_VIRTUALENVS_IN_PROJECT = 'true'
         POETRY_NO_INTERACTION = '1'
         PYTHONUNBUFFERED = '1'
-        SNYK_INTEGRATION_NAME = 'JENKINS'
     }
 
     options {
@@ -116,9 +115,9 @@ spec:
                                 echo "=== Running Snyk Code (SAST) scan ==="
                                 snyk code test \
                                     --org=${SNYK_ORG} \
-                                    --project-name=TEST_CX_NAME_pyexample2 \
+                                    --project-name=TEST_CX_NAME_pyexample3 \
                                     --severity-threshold=medium \
-                                    --remote-repo-url=https://github.com/ldorg/pyexample2 \
+                                    --remote-repo-url=https://github.com/ldorg/pyexample3 \
                                     --json-file-output=snyk-sast-results.json \
                                     --sarif-file-output=snyk-sast-results.sarif \
                                     || echo "Snyk SAST found issues (exit code: $?)"
@@ -156,9 +155,9 @@ spec:
                                 echo "=== Running Snyk Open Source (SCA) scan ==="
                                 snyk test \
                                     --org=${SNYK_ORG} \
-                                    --project-name=TEST_CX_NAME_pyexample2 \
+                                    --project-name=TEST_CX_NAME_pyexample3 \
                                     --severity-threshold=medium \
-                                    --remote-repo-url=https://github.com/ldorg/pyexample2 \
+                                    --remote-repo-url=https://github.com/ldorg/pyexample3 \
                                     --json-file-output=snyk-sca-results.json \
                                     --sarif-file-output=snyk-sca-results.sarif \
                                     || echo "Snyk SCA found vulnerabilities (exit code: $?)"
