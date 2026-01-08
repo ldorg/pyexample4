@@ -7,7 +7,7 @@ kind: Pod
 metadata:
   labels:
     jenkins: agent
-    app: pyexample3-ci
+    app: pyexample4-ci
 spec:
   containers:
   - name: python
@@ -49,11 +49,11 @@ spec:
                     sh 'git config --global --add safe.directory "*"'
 
                     env.GIT_COMMIT_SHORT = sh(
-                        script: "git rev-parse --short HEAD",
+                        script: 'git rev-parse --short HEAD',
                         returnStdout: true
                     ).trim()
                     env.GIT_BRANCH_NAME = sh(
-                        script: "git rev-parse --abbrev-ref HEAD",
+                        script: 'git rev-parse --abbrev-ref HEAD',
                         returnStdout: true
                     ).trim()
                     echo "Building commit ${env.GIT_COMMIT_SHORT} on branch ${env.GIT_BRANCH_NAME}"
@@ -115,9 +115,9 @@ spec:
                                 echo "=== Running Snyk Code (SAST) scan ==="
                                 snyk code test \
                                     --org=${SNYK_ORG} \
-                                    --project-name=TEST_CX_NAME_pyexample3 \
+                                    --project-name=TEST_CX_NAME_pyexample4 \
                                     --severity-threshold=medium \
-                                    --remote-repo-url=https://github.com/ldorg/pyexample3 \
+                                    --remote-repo-url=https://github.com/ldorg/pyexample4 \
                                     --json-file-output=snyk-sast-results.json \
                                     --sarif-file-output=snyk-sast-results.sarif \
                                     || echo "Snyk SAST found issues (exit code: $?)"
@@ -155,12 +155,18 @@ spec:
                                 echo "=== Running Snyk Open Source (SCA) scan ==="
                                 snyk test \
                                     --org=${SNYK_ORG} \
-                                    --project-name=TEST_CX_NAME_pyexample3 \
+                                    --project-name=TEST_CX_NAME_pyexample4 \
                                     --severity-threshold=medium \
-                                    --remote-repo-url=https://github.com/ldorg/pyexample3 \
+                                    --remote-repo-url=https://github.com/ldorg/pyexample4 \
                                     --json-file-output=snyk-sca-results.json \
                                     --sarif-file-output=snyk-sca-results.sarif \
                                     || echo "Snyk SCA found vulnerabilities (exit code: $?)"
+
+                                echo "=== Transforming SARIF file for registerSecurityScan compatibility ==="
+                                if [ -f snyk-sca-results.sarif ]; then
+                                    sed -i 's/Snyk Open Source/SnykCode/g' snyk-sca-results.sarif
+                                    echo "Transformed tool name in SARIF file"
+                                fi
 
                                 echo "=== SCA Scan Summary ==="
                                 if [ -f snyk-sca-results.json ]; then
@@ -205,19 +211,19 @@ spec:
         }
 
         success {
-            echo "✓ Pipeline completed successfully!"
+            echo '✓ Pipeline completed successfully!'
             echo "  Commit: ${env.GIT_COMMIT_SHORT}"
             echo "  Branch: ${env.GIT_BRANCH_NAME}"
         }
 
         unstable {
-            echo "⚠ Pipeline completed with warnings"
+            echo '⚠ Pipeline completed with warnings'
             echo "  This may indicate security findings or test failures that didn't fail the build"
         }
 
         failure {
-            echo "✗ Pipeline failed!"
-            echo "  Check the logs above for error details"
+            echo '✗ Pipeline failed!'
+            echo '  Check the logs above for error details'
         }
     }
 }
